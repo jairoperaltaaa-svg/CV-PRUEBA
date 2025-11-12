@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CVPro - Análisis IA 🤖</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="ia-analysis.css">
+</head>
+<body>
+    <div id="particles-js"></div>
+    
+    <nav class="main-nav">
+        <div class="nav-brand">
+            <h1>CVPro 🤖</h1>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">🏠 Constructor</a>
+            <a href="batalla.html" class="nav-link">⚔️ Modo Batalla</a>
+            <a href="#ia" class="nav-link active">🤖 Análisis IA</a>
+            <a href="premium.html" class="nav-link premium-link">💎 Premium</a>
+            <a href="users.html" class="nav-link">👤 Mi Cuenta</a>
+        </div>
+    </nav>
+
+    <div class="ia-container">
+        <!-- HEADER ANÁLISIS IA -->
+        <div class="ia-header">
+            <h1>🤖 Análisis Inteligente de CV</h1>
+            <p>Potenciado por IA para optimizar tu CV y maximizar oportunidades</p>
+            
+            <div class="ia-stats">
+                <div class="ia-stat">
+                    <div class="stat-icon">⚡</div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="analisis-completados">0</div>
+                        <div class="stat-label">Análisis Completados</div>
+                    </div>
+                </div>
+                <div class="ia-stat">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="mejoras-sugeridas">0</div>
+                        <div class="stat-label">Mejoras Sugeridas</div>
+                    </div>
+                </div>
+                <div class="ia-stat">
+                    <div class="stat-icon">📈</div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="puntuacion-promedio">0%</div>
+                        <div class="stat-label">Puntuación Promedio</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANEL DE ANÁLISIS PRINCIPAL -->
+        <div class="analysis-panel">
+            <div class="analysis-tabs">
+                <button class="tab-btn active" onclick="cambiarTab('analisis-general')">
+                    📊 Análisis General
+                </button>
+                <button class="tab-btn" onclick="cambiarTab('optimizacion-ats')">
+                    🔍 Optimización ATS
+                </button>
+                <button class="tab-btn" onclick="cambiarTab('sugerencias-contenido')">
+                    💡 Sugerencias de Contenido
+                </button>
+                <button class="tab-btn" onclick="cambiarTab('analisis-industria')">
+                    🏢 Análisis por Industria
+                </button>
+            </div>
+
+            <div class="tab-content active" id="analisis-general">
+                <div class="analysis-content">
+                    <div class="analysis-main">
+                        <h3>Análisis General de tu CV</h3>
+                        <div class="score-breakdown-ia">
+                            <div class="score-category-ia">
+                                <span>Completitud</span>
+                                <div class="score-bar">
+                                    <div class="score-fill" id="score-completitud" style="width: 0%"></div>
+                                </div>
+                                <span class="score-value" id="value-completitud">0%</span>
+                            </div>
+                            <div class="score-category-ia">
+                                <span>Impacto</span>
+                                <div class="score-bar">
+                                    <div class="score-fill" id="score-impacto" style="width: 0%"></div>
+                                </div>
+                                <span class="score-value" id="value-impacto">0%</span>
+                            </div>
+                            <div class="score-category-ia">
+                                <span>Palabras Clave</span>
+                                <div class="score-bar">
+                                    <div class="score-fill" id="score-keywords" style="width: 0%"></div>
+                                </div>
+                                <span class="score-value" id="value-keywords">0%</span>
+                            </div>
+                            <div class="score-category-ia">
+                                <span>Estructura</span>
+                                <div class="score-bar">
+                                    <div class="score-fill" id="score-estructura" style="width: 0%"></div>
+                                </div>
+                                <span class="score-value" id="value-estructura">0%</span>
+                            </div>
+                        </div>
+
+                        <div class="ia-recommendations">
+                            <h4>💡 Recomendaciones Principales</h4>
+                            <div id="recommendations-list">
+                                <!-- Recomendaciones se cargan dinámicamente -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="analysis-sidebar">
+                        <div class="ia-insight">
+                            <h4>📈 Puntuación General</h4>
+                            <div class="overall-score" id="overall-score">
+                                <div class="score-circle-ia">
+                                    <span>0</span>
+                                </div>
+                                <div class="score-level" id="score-level">BÁSICO</div>
+                            </div>
+                        </div>
+
+                        <div class="ia-action">
+                            <button class="btn-ia-primary" onclick="realizarAnalisisCompleto()">
+                                🔄 Realizar Análisis Completo
+                            </button>
+                            <button class="btn-ia-secondary" onclick="generarSugerenciasAutomaticas()">
+                                🚀 Generar Sugerencias Automáticas
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="optimizacion-ats">
+                <div class="ats-analysis">
+                    <h3>🔍 Optimización para Sistemas ATS</h3>
+                    <p>Mejora la compatibilidad con Applicant Tracking Systems</p>
+                    
+                    <div class="ats-checklist">
+                        <div class="ats-item" id="ats-formato">
+                            <div class="ats-check">✅</div>
+                            <div class="ats-info">
+                                <h5>Formato Compatible</h5>
+                                <p>Tu CV usa un formato amigable para ATS</p>
+                            </div>
+                        </div>
+                        <div class="ats-item" id="ats-keywords">
+                            <div class="ats-check">⚠️</div>
+                            <div class="ats-info">
+                                <h5>Palabras Clave</h5>
+                                <p>Optimiza las palabras clave para tu industria</p>
+                            </div>
+                        </div>
+                        <div class="ats-item" id="ats-secciones">
+                            <div class="ats-check">✅</div>
+                            <div class="ats-info">
+                                <h5>Estructura de Secciones</h5>
+                                <p>Las secciones están bien organizadas</p>
+                            </div>
+                        </div>
+                        <div class="ats-item" id="ats-contacto">
+                            <div class="ats-check">✅</div>
+                            <div class="ats-info">
+                                <h5>Información de Contacto</h5>
+                                <p>La información de contacto es accesible</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ats-suggestions">
+                        <h4>🎯 Palabras Clave Recomendadas</h4>
+                        <div class="keywords-grid" id="keywords-grid">
+                            <!-- Palabras clave se cargan dinámicamente -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="sugerencias-contenido">
+                <div class="content-suggestions">
+                    <h3>💡 Sugerencias de Contenido Inteligentes</h3>
+                    
+                    <div class="suggestion-cards">
+                        <div class="suggestion-card">
+                            <div class="suggestion-icon">📝</div>
+                            <h5>Mejorar Resumen Profesional</h5>
+                            <p id="suggestion-resumen">Analizando tu resumen actual...</p>
+                            <button class="btn-suggestion" onclick="mejorarResumen()">
+                                ✨ Mejorar Automáticamente
+                            </button>
+                        </div>
+                        
+                        <div class="suggestion-card">
+                            <div class="suggestion-icon">💼</div>
+                            <h5>Optimizar Experiencia Laboral</h5>
+                            <p id="suggestion-experiencia">Revisando descripciones de experiencia...</p>
+                            <button class="btn-suggestion" onclick="optimizarExperiencia()">
+                                ✨ Optimizar Automáticamente
+                            </button>
+                        </div>
+                        
+                        <div class="suggestion-card">
+                            <div class="suggestion-icon">🎓</div>
+                            <h5>Enriquecer Educación</h5>
+                            <p id="suggestion-educacion">Evaluando sección educativa...</p>
+                            <button class="btn-suggestion" onclick="enriquecerEducacion()">
+                                ✨ Enriquecer Automáticamente
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="analisis-industria">
+                <div class="industry-analysis">
+                    <h3>🏢 Análisis Específico por Industria</h3>
+                    
+                    <div class="industry-selector">
+                        <label>Selecciona tu industria objetivo:</label>
+                        <select id="industry-select" onchange="analizarPorIndustria()">
+                            <option value="tecnologia">Tecnología & IT</option>
+                            <option value="marketing">Marketing Digital</option>
+                            <option value="finanzas">Finanzas & Banca</option>
+                            <option value="salud">Salud & Medicina</option>
+                            <option value="educacion">Educación</option>
+                            <option value="ventas">Ventas & Comercial</option>
+                            <option value="diseno">Diseño & Creatividad</option>
+                            <option value="ingenieria">Ingeniería</option>
+                        </select>
+                    </div>
+
+                    <div class="industry-results" id="industry-results">
+                        <div class="industry-match">
+                            <h4>🎯 Compatibilidad con la Industria</h4>
+                            <div class="match-score" id="industry-match-score">0%</div>
+                            <div class="match-bar">
+                                <div class="match-fill" id="industry-match-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="industry-keywords">
+                            <h4>🔤 Palabras Clave de la Industria</h4>
+                            <div class="industry-tags" id="industry-tags">
+                                <!-- Tags de industria se cargan dinámicamente -->
+                            </div>
+                        </div>
+
+                        <div class="industry-recommendations">
+                            <h4>💡 Recomendaciones Específicas</h4>
+                            <div id="industry-recommendations-list">
+                                <!-- Recomendaciones de industria se cargan dinámicamente -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- HISTORIAL DE ANÁLISIS -->
+        <div class="analysis-history">
+            <h3>📋 Historial de Análisis</h3>
+            <div class="history-list" id="history-list">
+                <!-- Historial se carga dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE RESULTADOS DE IA -->
+    <div id="ia-modal" class="modal">
+        <div class="modal-content ia-modal-content">
+            <span class="close-modal" onclick="cerrarIAModal()">&times;</span>
+            <h2 id="ia-modal-titulo">Resultados del Análisis IA</h2>
+            <div id="ia-modal-contenido">
+                <!-- Contenido del modal se carga dinámicamente -->
+            </div>
+            <div class="ia-modal-actions">
+                <button class="btn-ia-primary" onclick="aplicarMejorasAutomaticas()">
+                    ✅ Aplicar Mejoras Automáticas
+                </button>
+                <button class="btn-ia-secondary" onclick="cerrarIAModal()">
+                    ✋ Aplicar Manualmente
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="ia-analysis.js"></script>
+    <script>
+        // Inicializar partículas
+        function initParticles() {
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.getElementById('particles-js').appendChild(renderer.domElement);
+
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particlesCount = 1500;
+            const posArray = new Float32Array(particlesCount * 3);
+
+            for(let i = 0; i < particlesCount * 3; i++) {
+                posArray[i] = (Math.random() - 0.5) * 5;
+            }
+
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            const particlesMaterial = new THREE.PointsMaterial({
+                size: 0.005,
+                color: 0xffffff
+            });
+
+            const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particlesMesh);
+            camera.position.z = 2;
+
+            function animate() {
+                requestAnimationFrame(animate);
+                particlesMesh.rotation.x += 0.0005;
+                particlesMesh.rotation.y += 0.0005;
+                renderer.render(scene, camera);
+            }
+            animate();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initParticles();
+            inicializarAnalisisIA();
+            realizarAnalisisCompleto();
+        });
+
+        window.addEventListener('resize', initParticles);
+    </script>
+</body>
+</html>

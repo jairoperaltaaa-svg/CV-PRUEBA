@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CVPro - Modo Batalla ⚔️</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="batalla.css">
+</head>
+<body>
+    <div id="particles-js"></div>
+    
+    <nav class="main-nav">
+        <div class="nav-brand">
+            <h1>CVPro ⚔️</h1>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">🏠 Constructor</a>
+            <a href="#batalla" class="nav-link active">⚔️ Modo Batalla</a>
+            <a href="ia-analysis.html" class="nav-link">🤖 Análisis IA</a>
+            <a href="premium.html" class="nav-link premium-link">💎 Premium</a>
+            <a href="users.html" class="nav-link">👤 Mi Cuenta</a>
+        </div>
+    </nav>
+
+    <div class="batalla-container">
+        <!-- HEADER DEL MODO BATALLA -->
+        <div class="batalla-header">
+            <h1>⚔️ Modo Batalla de CVs</h1>
+            <p>Compara CVs anónimos y vota por el mejor. ¡Gana puntos y sube en el ranking!</p>
+            
+            <div class="batalla-stats">
+                <div class="stat">
+                    <span class="stat-number" id="total-batallas">0</span>
+                    <span class="stat-label">Batallas</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number" id="mi-puntuacion">0</span>
+                    <span class="stat-label">Mi Puntuación</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number" id="mi-ranking">-</span>
+                    <span class="stat-label">Ranking</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ÁREA DE BATALLA -->
+        <div class="batalla-arena" id="batalla-arena">
+            <div class="batalla-cards">
+                <!-- CV 1 -->
+                <div class="cv-card" id="cv-card-1">
+                    <div class="card-header">
+                        <h3>CV #<span id="cv1-id">001</span></h3>
+                        <div class="card-score" id="cv1-score">Score: 0</div>
+                    </div>
+                    <div class="card-content" id="cv1-content">
+                        <!-- Contenido del CV se carga dinámicamente -->
+                    </div>
+                    <button class="vote-btn" onclick="votar(1)">✅ Votar por este CV</button>
+                </div>
+
+                <div class="vs-separator">
+                    <span>VS</span>
+                </div>
+
+                <!-- CV 2 -->
+                <div class="cv-card" id="cv-card-2">
+                    <div class="card-header">
+                        <h3>CV #<span id="cv2-id">002</span></h3>
+                        <div class="card-score" id="cv2-score">Score: 0</div>
+                    </div>
+                    <div class="card-content" id="cv2-content">
+                        <!-- Contenido del CV se carga dinámicamente -->
+                    </div>
+                    <button class="vote-btn" onclick="votar(2)">✅ Votar por este CV</button>
+                </div>
+            </div>
+
+            <!-- CONTROLES DE BATALLA -->
+            <div class="batalla-controls">
+                <button class="btn-saltar" onclick="siguienteBatalla()">⏭️ Saltar Batalla</button>
+                <button class="btn-reportar" onclick="reportarBatalla()">🚩 Reportar</button>
+                <button class="btn-compartir" onclick="compartirBatalla()">📤 Compartir</button>
+            </div>
+        </div>
+
+        <!-- RANKING Y LEADERBOARD -->
+        <div class="ranking-section">
+            <h2>🏆 Leaderboard Global</h2>
+            <div class="ranking-filters">
+                <button class="filter-btn active" onclick="filtrarRanking('global')">Global</button>
+                <button class="filter-btn" onclick="filtrarRanking('semanal')">Esta Semana</button>
+                <button class="filter-btn" onclick="filtrarRanking('mensual')">Este Mes</button>
+            </div>
+            
+            <div class="ranking-list" id="ranking-list">
+                <!-- Ranking se carga dinámicamente -->
+            </div>
+        </div>
+
+        <!-- MIS ESTADÍSTICAS -->
+        <div class="stats-section">
+            <h2>📈 Mis Estadísticas</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="stats-votos-emitidos">0</div>
+                        <div class="stat-label">Votos Emitidos</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🏆</div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="stats-batallas-ganadas">0</div>
+                        <div class="stat-label">Batallas Ganadas</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="stats-porcentaje-victorias">0%</div>
+                        <div class="stat-label">Porcentaje Victorias</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⚡</div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="stats-racha-actual">0</div>
+                        <div class="stat-label">Racha Actual</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SUBIR MI CV PARA BATALLAS -->
+        <div class="upload-section">
+            <h2>🎯 Participar con mi CV</h2>
+            <div class="upload-options">
+                <div class="upload-option">
+                    <h4>Usar mi CV actual</h4>
+                    <p>Utiliza el CV que tienes en el constructor</p>
+                    <button class="btn-upload" onclick="subirCVParaBatalla()">
+                        🚀 Subir mi CV Actual
+                    </button>
+                </div>
+                <div class="upload-option">
+                    <h4>Subir CV manual</h4>
+                    <p>Carga un CV específico para batallas</p>
+                    <input type="file" id="cv-upload" accept=".json" style="display: none;">
+                    <button class="btn-upload" onclick="document.getElementById('cv-upload').click()">
+                        📁 Subir Archivo CV
+                    </button>
+                </div>
+            </div>
+            
+            <div class="upload-status" id="upload-status">
+                <!-- Estado de subida se muestra aquí -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE RESULTADOS -->
+    <div id="resultado-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="cerrarModal()">&times;</span>
+            <h2 id="modal-titulo">Resultado de la Batalla</h2>
+            <div id="modal-contenido">
+                <!-- Contenido del modal se carga dinámicamente -->
+            </div>
+            <button class="btn-continuar" onclick="siguienteBatalla()">Continuar</button>
+        </div>
+    </div>
+
+    <script src="batalla.js"></script>
+    <script>
+        // Inicializar partículas
+        function initParticles() {
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.getElementById('particles-js').appendChild(renderer.domElement);
+
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particlesCount = 1500;
+            const posArray = new Float32Array(particlesCount * 3);
+
+            for(let i = 0; i < particlesCount * 3; i++) {
+                posArray[i] = (Math.random() - 0.5) * 5;
+            }
+
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            const particlesMaterial = new THREE.PointsMaterial({
+                size: 0.005,
+                color: 0xffffff
+            });
+
+            const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particlesMesh);
+            camera.position.z = 2;
+
+            function animate() {
+                requestAnimationFrame(animate);
+                particlesMesh.rotation.x += 0.0005;
+                particlesMesh.rotation.y += 0.0005;
+                renderer.render(scene, camera);
+            }
+            animate();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initParticles();
+            inicializarModoBatalla();
+        });
+
+        window.addEventListener('resize', initParticles);
+    </script>
+</body>
+</html>
