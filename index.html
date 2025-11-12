@@ -3,244 +3,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CVPro - Constructor de CV Premium</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <title>CV Creator Pro | Crea tu CV Perfecto</title>
     <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <div id="particles-js"></div>
-    
-    <!-- MENÚ SUPERIOR MEJORADO -->
-    <nav class="main-nav">
-        <div class="nav-brand">
-            <h1>CVPro</h1>
-        </div>
-        <div class="nav-links">
-            <a href="#constructor" class="nav-link active">🏠 Constructor</a>
-            <a href="batalla.html" class="nav-link">⚔️ Modo Batalla</a>
-            <a href="ia-analysis.html" class="nav-link">🤖 Análisis IA</a>
-            <a href="premium.html" class="nav-link premium-link">💎 Premium</a>
-            <a href="users.html" class="nav-link">👤 Mi Cuenta</a>
-        </div>
-    </nav>
+    <!-- Canvas para partículas -->
+    <canvas id="particlesCanvas"></canvas>
 
-    <div class="container">
-        <!-- PANEL DE CONSTRUCCIÓN -->
-        <div class="builder-panel">
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-brand">
+                <h2>CV<span>Creator</span> Pro</h2>
+            </div>
+            <div class="nav-controls">
+                <button id="themeToggle" class="theme-btn">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button id="saveCV" class="btn btn-save">
+                    <i class="fas fa-download"></i> Guardar
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Panel Principal -->
+    <main class="main-container">
+        <!-- Panel Lateral - Editor -->
+        <aside class="editor-panel">
             <div class="panel-header">
-                <h1>CVPro</h1>
-                <p>Construye tu CV profesional en minutos</p>
+                <h3><i class="fas fa-edit"></i> Editor de CV</h3>
+                <button id="toggleAI" class="btn btn-ai">
+                    <i class="fas fa-robot"></i> Asistente IA
+                </button>
             </div>
 
-            <div class="controls">
-                <div class="theme-selector">
-                    <button class="theme-btn active" onclick="cambiarTema('claro')">☀️ Claro</button>
-                    <button class="theme-btn" onclick="cambiarTema('oscuro')">🌙 Oscuro</button>
+            <!-- Selector de Plantillas -->
+            <div class="template-selector">
+                <h4>Plantillas</h4>
+                <div class="template-grid">
+                    <div class="template-card active" data-template="modern">
+                        <div class="template-preview modern-preview"></div>
+                        <span>Moderna</span>
+                    </div>
+                    <div class="template-card" data-template="professional">
+                        <div class="template-preview professional-preview"></div>
+                        <span>Profesional</span>
+                    </div>
+                    <div class="template-card" data-template="creative">
+                        <div class="template-preview creative-preview"></div>
+                        <span>Creativa</span>
+                    </div>
+                    <div class="template-card" data-template="minimal">
+                        <div class="template-preview minimal-preview"></div>
+                        <span>Minimalista</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulario de Edición -->
+            <div class="edit-form">
+                <!-- Información Personal -->
+                <div class="form-section">
+                    <h4><i class="fas fa-user"></i> Información Personal</h4>
+                    <div class="form-group">
+                        <label>Nombre Completo</label>
+                        <input type="text" id="inputName" placeholder="Tu nombre completo">
+                    </div>
+                    <div class="form-group">
+                        <label>Título Profesional</label>
+                        <input type="text" id="inputTitle" placeholder="Ej: Desarrollador Full Stack">
+                    </div>
+                    <div class="form-group">
+                        <label>Ubicación</label>
+                        <input type="text" id="inputLocation" placeholder="Ciudad, País">
+                    </div>
+                </div>
+
+                <!-- Resumen -->
+                <div class="form-section">
+                    <h4><i class="fas fa-file-alt"></i> Resumen Profesional</h4>
+                    <div class="form-group">
+                        <textarea id="inputSummary" placeholder="Describe tu experiencia y objetivos..." rows="4"></textarea>
+                    </div>
+                </div>
+
+                <!-- Experiencia -->
+                <div class="form-section">
+                    <h4><i class="fas fa-briefcase"></i> Experiencia Laboral</h4>
+                    <div id="experienceList">
+                        <!-- Experiencias se agregarán aquí -->
+                    </div>
+                    <button id="addExperience" class="btn btn-add">
+                        <i class="fas fa-plus"></i> Agregar Experiencia
+                    </button>
+                </div>
+
+                <!-- Habilidades -->
+                <div class="form-section">
+                    <h4><i class="fas fa-code"></i> Habilidades Técnicas</h4>
+                    <div class="skills-input">
+                        <input type="text" id="inputSkill" placeholder="Ej: JavaScript, React, Node.js">
+                        <button id="addSkill" class="btn btn-add-small">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    <div id="skillsList" class="skills-tags">
+                        <!-- Skills se agregarán aquí -->
+                    </div>
+                </div>
+
+                <!-- Educación -->
+                <div class="form-section">
+                    <h4><i class="fas fa-graduation-cap"></i> Educación</h4>
+                    <div id="educationList">
+                        <!-- Educación se agregará aquí -->
+                    </div>
+                    <button id="addEducation" class="btn btn-add">
+                        <i class="fas fa-plus"></i> Agregar Educación
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Vista Previa del CV -->
+        <section class="preview-panel">
+            <div class="preview-container">
+                <div class="preview-header">
+                    <h3><i class="fas fa-eye"></i> Vista Previa</h3>
+                    <div class="preview-actions">
+                        <button id="exportPDF" class="btn btn-export">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </button>
+                        <button id="exportImage" class="btn btn-export">
+                            <i class="fas fa-image"></i> Imagen
+                        </button>
+                    </div>
                 </div>
                 
-                <div class="template-selector">
-                    <button class="template-btn active" onclick="cambiarTemplate('template-1')">Template 1</button>
-                    <button class="template-btn" onclick="cambiarTemplate('template-2')">Template 2</button>
-                    <button class="template-btn" onclick="cambiarTemplate('template-3')">Template 3</button>
-                </div>
+                <!-- CV Preview -->
+                <div id="cvPreview" class="cv-preview modern-template">
+                    <div class="cv-header">
+                        <h1 id="previewName">Tu Nombre Completo</h1>
+                        <h2 id="previewTitle">Título Profesional</h2>
+                        <p id="previewLocation">Ciudad, País</p>
+                    </div>
+                    
+                    <div class="cv-section">
+                        <h3>Resumen</h3>
+                        <p id="previewSummary">Aquí aparecerá tu resumen profesional...</p>
+                    </div>
 
-                <!-- BOTÓN DE SCORING INTEGRADO -->
-                <button id="btn-analizar-cv" class="btn-scoring" onclick="mostrarPanelScoring()">
-                    📊 Analizar Mi CV
-                </button>
+                    <div class="cv-section">
+                        <h3>Experiencia Laboral</h3>
+                        <div id="previewExperience">
+                            <div class="experience-item">
+                                <p>Agrega tu experiencia laboral</p>
+                            </div>
+                        </div>
+                    </div>
 
-                <!-- NUEVOS BOTONES DE ACCIÓN -->
-                <div class="action-buttons">
-                    <button class="action-btn export-pdf" onclick="exportarPDF()">
-                        📄 Exportar PDF Premium
-                    </button>
-                    <button class="action-btn share-cv" onclick="compartirCV()">
-                        🔗 Compartir CV
-                    </button>
+                    <div class="cv-section">
+                        <h3>Habilidades</h3>
+                        <div id="previewSkills" class="skills-container">
+                            <span class="skill-tag">Tus habilidades aparecerán aquí</span>
+                        </div>
+                    </div>
+
+                    <div class="cv-section">
+                        <h3>Educación</h3>
+                        <div id="previewEducation">
+                            <div class="education-item">
+                                <p>Agrega tu formación académica</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </section>
 
-            <form class="cv-form" id="cvForm">
-                <!-- INFORMACIÓN PERSONAL -->
-                <div class="form-group">
-                    <label for="nombre">Nombre Completo</label>
-                    <input type="text" id="nombre" placeholder="Ej: Juan Pérez" oninput="actualizarVistaPrevia()">
-                </div>
-
-                <div class="form-group">
-                    <label for="titulo">Título Profesional</label>
-                    <input type="text" id="titulo" placeholder="Ej: Desarrollador Full Stack" oninput="actualizarVistaPrevia()">
-                </div>
-
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" placeholder="ejemplo@email.com" oninput="actualizarVistaPrevia()">
-                </div>
-
-                <div class="form-group">
-                    <label for="telefono">Teléfono</label>
-                    <input type="tel" id="telefono" placeholder="+1 234 567 890" oninput="actualizarVistaPrevia()">
-                </div>
-
-                <div class="form-group">
-                    <label for="resumen">Resumen Profesional</label>
-                    <textarea id="resumen" placeholder="Describe tu experiencia y habilidades..." oninput="actualizarVistaPrevia()"></textarea>
-                </div>
-
-                <!-- EXPERIENCIA LABORAL -->
-                <div class="form-group">
-                    <div class="section-header">
-                        <h3>Experiencia Laboral</h3>
-                        <button type="button" class="add-btn" onclick="agregarExperiencia()">+ Agregar</button>
-                    </div>
-                    <div id="experiencias-container" class="dynamic-section">
-                        <!-- Las experiencias se agregan aquí dinámicamente -->
-                    </div>
-                </div>
-
-                <!-- EDUCACIÓN -->
-                <div class="form-group">
-                    <div class="section-header">
-                        <h3>Educación</h3>
-                        <button type="button" class="add-btn" onclick="agregarEducacion()">+ Agregar</button>
-                    </div>
-                    <div id="educacion-container" class="dynamic-section">
-                        <!-- La educación se agrega aquí dinámicamente -->
-                    </div>
-                </div>
-
-                <!-- HABILIDADES -->
-                <div class="form-group">
-                    <label for="habilidades">Habilidades</label>
-                    <textarea id="habilidades" placeholder="Lista tus habilidades separadas por comas..." oninput="actualizarVistaPrevia()"></textarea>
-                </div>
-
-                <!-- NUEVOS CAMPOS PREMIUM -->
-                <div class="form-group">
-                    <label for="idiomas">Idiomas</label>
-                    <input type="text" id="idiomas" placeholder="Ej: Español (Nativo), Inglés (Avanzado)" oninput="actualizarVistaPrevia()">
-                </div>
-
-                <div class="form-group">
-                    <label for="certificaciones">Certificaciones</label>
-                    <textarea id="certificaciones" placeholder="Tus certificaciones profesionales..." oninput="actualizarVistaPrevia()"></textarea>
-                </div>
-            </form>
-        </div>
-
-        <!-- VISTA PREVIA -->
-        <div class="preview-panel">
-            <div class="preview-header">
-                <h2>Vista Previa</h2>
-                <div class="preview-actions">
-                    <button class="action-btn" onclick="guardarCV()">💾 Guardar</button>
-                    <button class="action-btn" onclick="descargarCVJSON()">📁 Backup</button>
-                </div>
+        <!-- Panel IA -->
+        <aside class="ai-panel" id="aiPanel">
+            <div class="panel-header">
+                <h3><i class="fas fa-robot"></i> Asistente IA</h3>
+                <button class="btn btn-close" id="closeAI">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
             
-            <div class="cv-preview template-1" id="cv-preview">
-                <!-- El CV se genera aquí dinámicamente -->
-                <div class="cv-header">
-                    <div class="cv-name">Tu Nombre</div>
-                    <div class="cv-title">Tu Título Profesional</div>
+            <div class="ai-content">
+                <div class="ai-analysis">
+                    <h4>Análisis de tu CV</h4>
+                    <div id="aiFeedback" class="ai-feedback">
+                        <div class="feedback-item positive">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Comienza agregando tu información personal</span>
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="cv-section">
-                    <div class="section-title">Resumen</div>
-                    <p>Tu resumen profesional aparecerá aquí...</p>
+
+                <div class="ai-suggestions">
+                    <h4>Sugerencias IA</h4>
+                    <div id="aiSuggestions" class="suggestions-list">
+                        <div class="suggestion">
+                            <strong>💡 Completa tu información personal</strong>
+                            <p>Agrega nombre, título y ubicación para empezar</p>
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="cv-section">
-                    <div class="section-title">Experiencia</div>
-                    <p>Tu experiencia laboral aparecerá aquí...</p>
-                </div>
-                
-                <div class="cv-section">
-                    <div class="section-title">Educación</div>
-                    <p>Tu educación aparecerá aquí...</p>
-                </div>
-                
-                <div class="cv-section">
-                    <div class="section-title">Habilidades</div>
-                    <p>Tus habilidades aparecerán aquí...</p>
+
+                <div class="ai-tips">
+                    <h4>Consejos Profesionales</h4>
+                    <div class="tips-list">
+                        <div class="tip">
+                            <strong>📝 Usa verbos de acción</strong>
+                            <p>"Desarrollé", "Lideré", "Implementé" en lugar de "Responsable de"</p>
+                        </div>
+                        <div class="tip">
+                            <strong>🎯 Sé específico</strong>
+                            <p>Incluye métricas y resultados concretos</p>
+                        </div>
+                        <div class="tip">
+                            <strong>⚡ Destaca logros</strong>
+                            <p>Muestra el impacto de tu trabajo, no solo las tareas</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
+        </aside>
+    </main>
 
-    <!-- MINI PREVIEW -->
-    <div class="mini-preview" id="mini-preview" onclick="scrollToPreview()">
-        <div class="mini-header">
-            <div class="mini-name">Vista Previa</div>
-            <div class="mini-title">Click para ver</div>
-        </div>
-    </div>
-
-    <!-- PANEL DE SHARE -->
-    <div id="share-panel" class="share-panel">
-        <div class="share-content">
-            <h3>🔗 Compartir tu CV</h3>
-            <div class="share-url">
-                <input type="text" id="share-url-input" readonly>
-                <button onclick="copiarURL()">📋</button>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 <span class="footer-name">Jairo</span>. Hecho con <span class="heart">💙</span> y código.</p>
+            <div class="color-picker">
+                <button class="color-option active" data-color="blue" style="background: #3b82f6;"></button>
+                <button class="color-option" data-color="purple" style="background: #8b5cf6;"></button>
+                <button class="color-option" data-color="green" style="background: #10b981;"></button>
+                <button class="color-option" data-color="red" style="background: #ef4444;"></button>
+                <button class="color-option" data-color="orange" style="background: #f59e0b;"></button>
             </div>
-            <p class="share-note">Este enlace será válido por 30 días</p>
-            <button class="cerrar-panel" onclick="cerrarSharePanel()">Cerrar</button>
         </div>
-    </div>
+    </footer>
 
+    <!-- Scripts -->
     <script src="script.js"></script>
-    <script>
-        // Inicializar partículas (MANTENIENDO TU CÓDIGO ORIGINAL)
-        function initParticles() {
-            const scene = new THREE.Scene();
-            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            const renderer = new THREE.WebGLRenderer({ alpha: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            document.getElementById('particles-js').appendChild(renderer.domElement);
-
-            const particlesGeometry = new THREE.BufferGeometry();
-            const particlesCount = 1500;
-            const posArray = new Float32Array(particlesCount * 3);
-
-            for(let i = 0; i < particlesCount * 3; i++) {
-                posArray[i] = (Math.random() - 0.5) * 5;
-            }
-
-            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-            const particlesMaterial = new THREE.PointsMaterial({
-                size: 0.005,
-                color: 0xffffff
-            });
-
-            const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-            scene.add(particlesMesh);
-            camera.position.z = 2;
-
-            function animate() {
-                requestAnimationFrame(animate);
-                particlesMesh.rotation.x += 0.0005;
-                particlesMesh.rotation.y += 0.0005;
-                renderer.render(scene, camera);
-            }
-            animate();
-        }
-
-        // Inicializar cuando cargue la página
-        document.addEventListener('DOMContentLoaded', function() {
-            initParticles();
-            cargarDatosGuardados();
-            actualizarVistaPrevia();
-            // Inicializar sistema de scoring
-            setTimeout(inicializarSistemaScoring, 1000);
-        });
-
-        // Manejar redimensionado de ventana
-        window.addEventListener('resize', function() {
-            initParticles();
-        });
-    </script>
+    <script src="cv-editor.js"></script>
+    <script src="cv-analyzer.js"></script>
+    <script src="cv-templates.js"></script>
+    <script src="cv-save.js"></script>
 </body>
 </html>

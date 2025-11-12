@@ -1,883 +1,353 @@
-// ========== SISTEMA ORIGINAL DEL CVPro ==========
+// script.js - Sistema principal con partículas MUY VISIBLES
 
-// Variables globales
-let temaActual = 'claro';
-let templateActual = 'template-1';
-
-// Cambiar tema claro/oscuro
-function cambiarTema(tema) {
-    temaActual = tema;
-    document.body.classList.toggle('dark-mode', tema === 'oscuro');
-    
-    // Actualizar botones activos
-    document.querySelectorAll('.theme-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.textContent.includes(tema === 'claro' ? 'Claro' : 'Oscuro'));
-    });
-    
-    actualizarVistaPrevia();
-    guardarConfiguracion();
-}
-
-// Cambiar template
-function cambiarTemplate(template) {
-    templateActual = template;
-    const preview = document.getElementById('cv-preview');
-    
-    // Remover todas las clases de template
-    preview.classList.remove('template-1', 'template-2', 'template-3');
-    // Agregar la clase del template actual
-    preview.classList.add(template);
-    
-    // Actualizar botones activos
-    document.querySelectorAll('.template-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    event.target.classList.add('active');
-    
-    actualizarVistaPrevia();
-    guardarConfiguracion();
-}
-
-// Actualizar vista previa en tiempo real
-function actualizarVistaPrevia() {
-    const nombre = document.getElementById('nombre').value || 'Tu Nombre';
-    const titulo = document.getElementById('titulo').value || 'Tu Título Profesional';
-    const email = document.getElementById('email').value || 'email@ejemplo.com';
-    const telefono = document.getElementById('telefono').value || '+1 234 567 890';
-    const resumen = document.getElementById('resumen').value || 'Tu resumen profesional aparecerá aquí...';
-    const habilidades = document.getElementById('habilidades').value || 'Tus habilidades aparecerán aquí...';
-    const idiomas = document.getElementById('idiomas').value || '';
-    const certificaciones = document.getElementById('certificaciones').value || '';
-    
-    const preview = document.getElementById('cv-preview');
-    
-    // Actualizar header
-    const cvHeader = preview.querySelector('.cv-header') || crearSeccion('cv-header');
-    cvHeader.innerHTML = `
-        <div class="cv-name">${nombre}</div>
-        <div class="cv-title">${titulo}</div>
-        <div class="cv-contacto">${email} | ${telefono}</div>
-    `;
-    
-    // Actualizar secciones
-    actualizarSeccion(preview, 'Resumen', resumen);
-    actualizarSeccion(preview, 'Experiencia', generarExperienciaHTML());
-    actualizarSeccion(preview, 'Educación', generarEducacionHTML());
-    actualizarSeccion(preview, 'Habilidades', habilidades.split(',').map(h => h.trim()).filter(h => h).join(', '));
-    
-    // Nuevas secciones
-    if (idiomas) {
-        actualizarSeccion(preview, 'Idiomas', idiomas);
-    }
-    if (certificaciones) {
-        actualizarSeccion(preview, 'Certificaciones', certificaciones);
-    }
-    
-    // Actualizar mini preview
-    actualizarMiniPreview(nombre, titulo);
-    
-    guardarDatosCV();
-}
-
-function actualizarSeccion(preview, titulo, contenido) {
-    let seccion = preview.querySelector(`.cv-section:nth-child(${getSeccionIndex(titulo)})`);
-    if (!seccion) {
-        seccion = crearSeccion('cv-section');
-        preview.appendChild(seccion);
-    }
-    
-    seccion.innerHTML = `
-        <div class="section-title">${titulo}</div>
-        <div class="section-content">${contenido}</div>
-    `;
-}
-
-function getSeccionIndex(titulo) {
-    const secciones = ['Resumen', 'Experiencia', 'Educación', 'Habilidades', 'Idiomas', 'Certificaciones'];
-    return secciones.indexOf(titulo) + 1;
-}
-
-function crearSeccion(clase) {
-    const div = document.createElement('div');
-    div.className = clase;
-    return div;
-}
-
-// Generar HTML para experiencias
-function generarExperienciaHTML() {
-    const experiencias = JSON.parse(localStorage.getItem('experiencias')) || [];
-    if (experiencias.length === 0) return '<p>Tu experiencia laboral aparecerá aquí...</p>';
-    
-    return experiencias.map(exp => `
-        <div class="experiencia-item">
-            <div class="exp-header">
-                <strong>${exp.puesto}</strong> - ${exp.empresa}
-                <span class="exp-fecha">${exp.fechaInicio} - ${exp.fechaFin}</span>
-            </div>
-            <div class="exp-descripcion">${exp.descripcion}</div>
-        </div>
-    `).join('');
-}
-
-// Generar HTML para educación
-function generarEducacionHTML() {
-    const educacion = JSON.parse(localStorage.getItem('educacion')) || [];
-    if (educacion.length === 0) return '<p>Tu educación aparecerá aquí...</p>';
-    
-    return educacion.map(edu => `
-        <div class="educacion-item">
-            <div class="edu-header">
-                <strong>${edu.titulo}</strong> - ${edu.institucion}
-                <span class="edu-fecha">${edu.fecha}</span>
-            </div>
-        </div>
-    `).join('');
-}
-
-// Actualizar mini preview
-function actualizarMiniPreview(nombre, titulo) {
-    const miniPreview = document.getElementById('mini-preview');
-    const miniName = miniPreview.querySelector('.mini-name');
-    const miniTitle = miniPreview.querySelector('.mini-title');
-    
-    miniName.textContent = nombre || 'Vista Previa';
-    miniTitle.textContent = titulo || 'Click para ver';
-}
-
-// Scroll a vista previa
-function scrollToPreview() {
-    document.querySelector('.preview-panel').scrollIntoView({ 
-        behavior: 'smooth' 
-    });
-}
-
-// Sistema de experiencias dinámicas
-function agregarExperiencia() {
-    const container = document.getElementById('experiencias-container');
-    const index = container.children.length;
-    
-    const experienciaHTML = `
-        <div class="experiencia-item" data-index="${index}">
-            <div class="form-group">
-                <label>Puesto</label>
-                <input type="text" placeholder="Ej: Desarrollador Frontend" oninput="actualizarExperiencia(${index})">
-            </div>
-            <div class="form-group">
-                <label>Empresa</label>
-                <input type="text" placeholder="Ej: Google Inc." oninput="actualizarExperiencia(${index})">
-            </div>
-            <div class="form-group">
-                <label>Fecha Inicio - Fecha Fin</label>
-                <input type="text" placeholder="Ej: Ene 2020 - Dic 2023" oninput="actualizarExperiencia(${index})">
-            </div>
-            <div class="form-group">
-                <label>Descripción</label>
-                <textarea placeholder="Describe tus responsabilidades y logros..." oninput="actualizarExperiencia(${index})"></textarea>
-            </div>
-            <button type="button" class="remove-btn" onclick="eliminarExperiencia(${index})">🗑️ Eliminar</button>
-        </div>
-    `;
-    
-    container.insertAdjacentHTML('beforeend', experienciaHTML);
-    guardarExperiencias();
-}
-
-function actualizarExperiencia(index) {
-    guardarExperiencias();
-    actualizarVistaPrevia();
-}
-
-function eliminarExperiencia(index) {
-    const item = document.querySelector(`.experiencia-item[data-index="${index}"]`);
-    if (item) item.remove();
-    
-    // Reindexar items restantes
-    const items = document.querySelectorAll('.experiencia-item');
-    items.forEach((item, i) => {
-        item.setAttribute('data-index', i);
-    });
-    
-    guardarExperiencias();
-    actualizarVistaPrevia();
-}
-
-function guardarExperiencias() {
-    const experiencias = [];
-    const items = document.querySelectorAll('.experiencia-item');
-    
-    items.forEach(item => {
-        const inputs = item.querySelectorAll('input, textarea');
-        experiencias.push({
-            puesto: inputs[0].value,
-            empresa: inputs[1].value,
-            fechaInicio: inputs[2].value,
-            descripcion: inputs[3].value
-        });
-    });
-    
-    localStorage.setItem('experiencias', JSON.stringify(experiencias));
-}
-
-// Sistema de educación dinámica
-function agregarEducacion() {
-    const container = document.getElementById('educacion-container');
-    const index = container.children.length;
-    
-    const educacionHTML = `
-        <div class="educacion-item" data-index="${index}">
-            <div class="form-group">
-                <label>Título</label>
-                <input type="text" placeholder="Ej: Licenciatura en Informática" oninput="actualizarEducacion(${index})">
-            </div>
-            <div class="form-group">
-                <label>Institución</label>
-                <input type="text" placeholder="Ej: Universidad Nacional" oninput="actualizarEducacion(${index})">
-            </div>
-            <div class="form-group">
-                <label>Fecha</label>
-                <input type="text" placeholder="Ej: 2016 - 2020" oninput="actualizarEducacion(${index})">
-            </div>
-            <button type="button" class="remove-btn" onclick="eliminarEducacion(${index})">🗑️ Eliminar</button>
-        </div>
-    `;
-    
-    container.insertAdjacentHTML('beforeend', educacionHTML);
-    guardarEducacion();
-}
-
-function actualizarEducacion(index) {
-    guardarEducacion();
-    actualizarVistaPrevia();
-}
-
-function eliminarEducacion(index) {
-    const item = document.querySelector(`.educacion-item[data-index="${index}"]`);
-    if (item) item.remove();
-    
-    // Reindexar items restantes
-    const items = document.querySelectorAll('.educacion-item');
-    items.forEach((item, i) => {
-        item.setAttribute('data-index', i);
-    });
-    
-    guardarEducacion();
-    actualizarVistaPrevia();
-}
-
-function guardarEducacion() {
-    const educacion = [];
-    const items = document.querySelectorAll('.educacion-item');
-    
-    items.forEach(item => {
-        const inputs = item.querySelectorAll('input');
-        educacion.push({
-            titulo: inputs[0].value,
-            institucion: inputs[1].value,
-            fecha: inputs[2].value
-        });
-    });
-    
-    localStorage.setItem('educacion', JSON.stringify(educacion));
-}
-
-// Guardar datos del CV
-function guardarDatosCV() {
-    const datos = {
-        nombre: document.getElementById('nombre').value,
-        titulo: document.getElementById('titulo').value,
-        email: document.getElementById('email').value,
-        telefono: document.getElementById('telefono').value,
-        resumen: document.getElementById('resumen').value,
-        habilidades: document.getElementById('habilidades').value,
-        idiomas: document.getElementById('idiomas').value,
-        certificaciones: document.getElementById('certificaciones').value
-    };
-    
-    localStorage.setItem('cvData', JSON.stringify(datos));
-}
-
-// Guardar configuración
-function guardarConfiguracion() {
-    const config = {
-        tema: temaActual,
-        template: templateActual
-    };
-    
-    localStorage.setItem('cvConfig', JSON.stringify(config));
-}
-
-// Cargar datos guardados
-function cargarDatosGuardados() {
-    // Cargar configuración
-    const config = JSON.parse(localStorage.getItem('cvConfig'));
-    if (config) {
-        temaActual = config.tema;
-        templateActual = config.template;
-        cambiarTema(temaActual);
-        cambiarTemplate(templateActual);
-    }
-    
-    // Cargar datos del CV
-    const datos = JSON.parse(localStorage.getItem('cvData'));
-    if (datos) {
-        document.getElementById('nombre').value = datos.nombre || '';
-        document.getElementById('titulo').value = datos.titulo || '';
-        document.getElementById('email').value = datos.email || '';
-        document.getElementById('telefono').value = datos.telefono || '';
-        document.getElementById('resumen').value = datos.resumen || '';
-        document.getElementById('habilidades').value = datos.habilidades || '';
-        document.getElementById('idiomas').value = datos.idiomas || '';
-        document.getElementById('certificaciones').value = datos.certificaciones || '';
-    }
-    
-    // Cargar experiencias
-    const experiencias = JSON.parse(localStorage.getItem('experiencias')) || [];
-    experiencias.forEach((exp, index) => {
-        agregarExperiencia();
-        const item = document.querySelector(`.experiencia-item[data-index="${index}"]`);
-        const inputs = item.querySelectorAll('input, textarea');
-        inputs[0].value = exp.puesto || '';
-        inputs[1].value = exp.empresa || '';
-        inputs[2].value = exp.fechaInicio || '';
-        inputs[3].value = exp.descripcion || '';
-    });
-    
-    // Cargar educación
-    const educacion = JSON.parse(localStorage.getItem('educacion')) || [];
-    educacion.forEach((edu, index) => {
-        agregarEducacion();
-        const item = document.querySelector(`.educacion-item[data-index="${index}"]`);
-        const inputs = item.querySelectorAll('input');
-        inputs[0].value = edu.titulo || '';
-        inputs[1].value = edu.institucion || '';
-        inputs[2].value = edu.fecha || '';
-    });
-}
-
-// Guardar CV
-function guardarCV() {
-    guardarDatosCV();
-    guardarConfiguracion();
-    guardarExperiencias();
-    guardarEducacion();
-    
-    // Mostrar mensaje de éxito
-    mostrarNotificacion('✅ CV guardado correctamente');
-}
-
-// ========== SISTEMA DE EXPORTACIÓN PDF REAL ==========
-
-async function exportarPDF() {
-    try {
-        const cvPreview = document.getElementById('cv-preview');
-        
-        // Mostrar loading
-        const originalText = event.target.textContent;
-        event.target.textContent = '⏳ Generando PDF...';
-        event.target.disabled = true;
-
-        // Crear canvas del CV
-        const canvas = await html2canvas(cvPreview, {
-            scale: 2,
-            useCORS: true,
-            logging: false,
-            backgroundColor: getComputedStyle(cvPreview).backgroundColor
-        });
-
-        // Crear PDF
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const imgData = canvas.toDataURL('image/png');
-        
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
-        const imgWidth = canvas.width;
-        const imgHeight = canvas.height;
-        const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-        const imgX = (pdfWidth - imgWidth * ratio) / 2;
-        const imgY = 10;
-
-        pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
-        
-        // Agregar marca de agua premium
-        pdf.setFontSize(8);
-        pdf.setTextColor(150, 150, 150);
-        pdf.text('Generado con CVPro - cvpro.com', 10, pdfHeight - 10);
-
-        // Descargar PDF
-        pdf.save('CV_Profesional.pdf');
-        
-        // Restaurar botón
-        event.target.textContent = originalText;
-        event.target.disabled = false;
-        
-        mostrarNotificacion('📄 PDF generado y descargado correctamente');
-        
-    } catch (error) {
-        console.error('Error generando PDF:', error);
-        event.target.textContent = '📄 Exportar PDF Premium';
-        event.target.disabled = false;
-        mostrarNotificacion('❌ Error al generar PDF', 'error');
-    }
-}
-
-// ========== SISTEMA DE COMPARTIR CV ==========
-
-function compartirCV() {
-    // Generar ID único para el CV
-    const cvId = generarIdUnico();
-    const cvData = {
-        id: cvId,
-        datos: JSON.parse(localStorage.getItem('cvData') || '{}'),
-        experiencias: JSON.parse(localStorage.getItem('experiencias') || '[]'),
-        educacion: JSON.parse(localStorage.getItem('educacion') || '[]'),
-        config: JSON.parse(localStorage.getItem('cvConfig') || '{}'),
-        timestamp: Date.now(),
-        expira: Date.now() + (30 * 24 * 60 * 60 * 1000) // 30 días
-    };
-    
-    // Guardar en localStorage con ID único
-    localStorage.setItem(`cv_share_${cvId}`, JSON.stringify(cvData));
-    
-    // Generar URL
-    const shareURL = `${window.location.origin}${window.location.pathname}?shared_cv=${cvId}`;
-    
-    // Mostrar panel de share
-    const sharePanel = document.getElementById('share-panel');
-    const urlInput = document.getElementById('share-url-input');
-    urlInput.value = shareURL;
-    sharePanel.classList.add('active');
-}
-
-function generarIdUnico() {
-    return 'cv_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now().toString(36);
-}
-
-function copiarURL() {
-    const urlInput = document.getElementById('share-url-input');
-    urlInput.select();
-    document.execCommand('copy');
-    mostrarNotificacion('📋 URL copiada al portapapeles');
-}
-
-function cerrarSharePanel() {
-    document.getElementById('share-panel').classList.remove('active');
-}
-
-// Cargar CV compartido
-function cargarCVCompartido() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const sharedCVId = urlParams.get('shared_cv');
-    
-    if (sharedCVId) {
-        const cvData = JSON.parse(localStorage.getItem(`cv_share_${sharedCVId}`) || '{}');
-        
-        if (cvData && cvData.timestamp && Date.now() < cvData.expira) {
-            if (confirm('¿Quieres cargar el CV compartido?')) {
-                // Cargar datos del CV compartido
-                if (cvData.datos) {
-                    Object.keys(cvData.datos).forEach(key => {
-                        const element = document.getElementById(key);
-                        if (element) element.value = cvData.datos[key] || '';
-                    });
-                }
-                
-                // Cargar configuración
-                if (cvData.config) {
-                    cambiarTema(cvData.config.tema || 'claro');
-                    cambiarTemplate(cvData.config.template || 'template-1');
-                }
-                
-                actualizarVistaPrevia();
-                mostrarNotificacion('✅ CV compartido cargado correctamente');
-            }
-        } else {
-            mostrarNotificacion('❌ El enlace ha expirado o no es válido', 'error');
-        }
-    }
-}
-
-// ========== SISTEMA DE BACKUP ==========
-
-function descargarCVJSON() {
-    const cvData = {
-        datos: JSON.parse(localStorage.getItem('cvData') || '{}'),
-        experiencias: JSON.parse(localStorage.getItem('experiencias') || '[]'),
-        educacion: JSON.parse(localStorage.getItem('educacion') || '[]'),
-        config: JSON.parse(localStorage.getItem('cvConfig') || '{}'),
-        exportDate: new Date().toISOString()
-    };
-    
-    const dataStr = JSON.stringify(cvData, null, 2);
-    const dataBlob = new Blob([dataStr], {type: 'application/json'});
-    
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(dataBlob);
-    link.download = `cv_backup_${new Date().toISOString().split('T')[0]}.json`;
-    link.click();
-    
-    mostrarNotificacion('💾 Backup descargado correctamente');
-}
-
-function cargarBackup(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        try {
-            const cvData = JSON.parse(e.target.result);
-            
-            // Cargar datos
-            if (cvData.datos) {
-                localStorage.setItem('cvData', JSON.stringify(cvData.datos));
-            }
-            if (cvData.experiencias) {
-                localStorage.setItem('experiencias', JSON.stringify(cvData.experiencias));
-            }
-            if (cvData.educacion) {
-                localStorage.setItem('educacion', JSON.stringify(cvData.educacion));
-            }
-            if (cvData.config) {
-                localStorage.setItem('cvConfig', JSON.stringify(cvData.config));
-            }
-            
-            // Recargar página
-            location.reload();
-            
-        } catch (error) {
-            mostrarNotificacion('❌ Error al cargar el backup', 'error');
-        }
-    };
-    reader.readAsText(file);
-}
-
-// ========== NOTIFICACIONES ==========
-
-function mostrarNotificacion(mensaje, tipo = 'success') {
-    // Crear elemento de notificación
-    const notificacion = document.createElement('div');
-    notificacion.className = `notificacion ${tipo}`;
-    notificacion.textContent = mensaje;
-    notificacion.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: ${tipo === 'error' ? '#EF4444' : '#10B981'};
-        color: white;
-        padding: 12px 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        z-index: 10000;
-        animation: slideIn 0.3s ease;
-    `;
-    
-    document.body.appendChild(notificacion);
-    
-    // Remover después de 3 segundos
-    setTimeout(() => {
-        notificacion.style.animation = 'slideOut 0.3s ease';
-        setTimeout(() => {
-            if (notificacion.parentNode) {
-                notificacion.parentNode.removeChild(notificacion);
-            }
-        }, 300);
-    }, 3000);
-}
-
-// ========== SISTEMA DE SCORING DE CV ==========
-
-class CVScorer {
+class CVCreator {
     constructor() {
-        this.scores = {
-            completitud: 0,
-            palabrasClave: 0,
-            estructura: 0,
-            experiencia: 0,
-            educacion: 0,
-            habilidades: 0
-        };
-        this.totalScore = 0;
+        this.currentTheme = localStorage.getItem('theme') || 'light';
+        this.particles = [];
+        this.mouse = { x: 0, y: 0 };
+        this.init();
     }
 
-    // Analizar completitud de campos obligatorios
-    analizarCompletitud() {
-        const camposObligatorios = [
-            'nombre', 'titulo', 'email', 'telefono',
-            'resumen', 'experiencia', 'educacion', 'habilidades'
-        ];
+    init() {
+        this.setTheme(this.currentTheme);
+        this.initializeParticles();
+        this.initializeEventListeners();
+        this.loadSavedData();
+    }
+
+    // SISTEMA DE PARTÍCULAS MUY VISIBLES
+    initializeParticles() {
+        this.canvas = document.getElementById('particlesCanvas');
+        if (!this.canvas) {
+            console.log('Canvas no encontrado');
+            return;
+        }
         
-        let completos = 0;
-        camposObligatorios.forEach(campo => {
-            if (this.obtenerValorCampo(campo)) completos++;
+        this.ctx = this.canvas.getContext('2d');
+        
+        this.resizeCanvas();
+        window.addEventListener('resize', () => this.resizeCanvas());
+        
+        this.createParticles();
+        this.animateParticles();
+        
+        // Seguimiento del mouse
+        this.canvas.addEventListener('mousemove', (e) => {
+            const rect = this.canvas.getBoundingClientRect();
+            this.mouse.x = e.clientX - rect.left;
+            this.mouse.y = e.clientY - rect.top;
         });
 
-        this.scores.completitud = Math.round((completos / camposObligatorios.length) * 30);
-        return this.scores.completitud;
+        this.canvas.addEventListener('mouseleave', () => {
+            this.mouse.x = -1000;
+            this.mouse.y = -1000;
+        });
     }
 
-    // Analizar palabras clave por industria
-    analizarPalabrasClave() {
-        const palabrasClave = [
-            'liderazgo', 'gestión', 'coordinación', 'desarrollo',
-            'implementación', 'optimización', 'análisis', 'estrategia',
-            'innovación', 'resultados', 'eficiencia', 'automatización',
-            'colaboración', 'comunicación', 'resolución'
+    resizeCanvas() {
+        if (!this.canvas) return;
+        
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+        this.createParticles();
+    }
+
+    createParticles() {
+        this.particles = [];
+        // MÁS PARTÍCULAS - MÁS GRANDES - MÁS VISIBLES
+        const particleCount = window.innerWidth < 768 ? 100 : 200;
+        
+        for (let i = 0; i < particleCount; i++) {
+            this.particles.push({
+                x: Math.random() * this.canvas.width,
+                y: Math.random() * this.canvas.height,
+                size: Math.random() * 5 + 3, // Más grandes
+                speedX: (Math.random() - 0.5) * 2,
+                speedY: (Math.random() - 0.5) * 2,
+                color: this.getParticleColor(),
+                originalColor: this.getParticleColor()
+            });
+        }
+    }
+
+    getParticleColor() {
+        const colorsLight = [
+            'rgba(59, 130, 246, 0.8)',    // Azul brillante
+            'rgba(139, 92, 246, 0.8)',    // Violeta
+            'rgba(239, 68, 68, 0.8)',     // Rojo
+            'rgba(16, 185, 129, 0.8)',    // Verde
+            'rgba(245, 158, 11, 0.8)'     // Naranja
         ];
         
-        const textoCV = this.obtenerTextoCompletoCV();
-        let encontradas = 0;
+        const colorsDark = [
+            'rgba(96, 165, 250, 0.9)',    // Azul neón
+            'rgba(167, 139, 250, 0.9)',   // Violeta neón
+            'rgba(248, 113, 113, 0.9)',   // Rojo neón
+            'rgba(52, 211, 153, 0.9)',    // Verde neón
+            'rgba(251, 191, 36, 0.9)'     // Amarillo neón
+        ];
+        
+        const colors = this.currentTheme === 'dark' ? colorsDark : colorsLight;
+        return colors[Math.floor(Math.random() * colors.length)];
+    }
 
-        palabrasClave.forEach(palabra => {
-            if (textoCV.toLowerCase().includes(palabra.toLowerCase())) {
-                encontradas++;
+    animateParticles() {
+        if (!this.canvas || !this.ctx) return;
+        
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        this.particles.forEach(particle => {
+            // Actualizar posición
+            particle.x += particle.speedX;
+            particle.y += particle.speedY;
+            
+            // Rebote en bordes
+            if (particle.x < 0 || particle.x > this.canvas.width) {
+                particle.speedX *= -1;
+                particle.x = Math.max(0, Math.min(this.canvas.width, particle.x));
+            }
+            if (particle.y < 0 || particle.y > this.canvas.height) {
+                particle.speedY *= -1;
+                particle.y = Math.max(0, Math.min(this.canvas.height, particle.y));
+            }
+            
+            // Interacción con mouse - MÁS FUERTE
+            const dx = this.mouse.x - particle.x;
+            const dy = this.mouse.y - particle.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance < 200) {
+                const force = 0.03;
+                const angle = Math.atan2(dy, dx);
+                
+                particle.speedX += Math.cos(angle) * force;
+                particle.speedY += Math.sin(angle) * force;
+                
+                // Limitar velocidad
+                const speed = Math.sqrt(particle.speedX * particle.speedX + particle.speedY * particle.speedY);
+                const maxSpeed = 4;
+                if (speed > maxSpeed) {
+                    particle.speedX = (particle.speedX / speed) * maxSpeed;
+                    particle.speedY = (particle.speedY / speed) * maxSpeed;
+                }
+                
+                // Cambiar color cerca del mouse
+                particle.color = this.currentTheme === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.9)'
+                    : 'rgba(0, 0, 0, 0.8)';
+            } else {
+                particle.color = particle.originalColor;
+            }
+            
+            // Dibujar partícula
+            this.ctx.beginPath();
+            this.ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+            this.ctx.fillStyle = particle.color;
+            this.ctx.fill();
+            
+            // Sombras para más visibilidad
+            this.ctx.shadowColor = particle.color;
+            this.ctx.shadowBlur = 15;
+            this.ctx.fill();
+            this.ctx.shadowBlur = 0;
+            
+            // Conectar partículas cercanas
+            this.particles.forEach(otherParticle => {
+                if (particle === otherParticle) return;
+                
+                const dx = particle.x - otherParticle.x;
+                const dy = particle.y - otherParticle.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < 150) {
+                    this.ctx.beginPath();
+                    const opacity = 0.4 * (1 - distance/150);
+                    this.ctx.strokeStyle = this.currentTheme === 'dark' 
+                        ? `rgba(255, 255, 255, ${opacity})`
+                        : `rgba(0, 0, 0, ${opacity})`;
+                    this.ctx.lineWidth = 2;
+                    this.ctx.moveTo(particle.x, particle.y);
+                    this.ctx.lineTo(otherParticle.x, otherParticle.y);
+                    this.ctx.stroke();
+                }
+            });
+        });
+        
+        requestAnimationFrame(() => this.animateParticles());
+    }
+
+    // Sistema de Temas
+    setTheme(theme) {
+        this.currentTheme = theme;
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        this.updateThemeButton();
+        this.updateParticlesColor();
+        this.updateFooterColors();
+    }
+
+    toggleTheme() {
+        const newTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+        this.setTheme(newTheme);
+    }
+
+    updateThemeButton() {
+        const themeBtn = document.getElementById('themeToggle');
+        if (themeBtn) {
+            const icon = themeBtn.querySelector('i');
+            icon.className = this.currentTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+        }
+    }
+
+    updateParticlesColor() {
+        this.particles.forEach(particle => {
+            particle.originalColor = this.getParticleColor();
+            particle.color = particle.originalColor;
+        });
+    }
+
+    updateFooterColors() {
+        // Los colores se manejan mediante CSS variables
+        console.log('Tema actualizado:', this.currentTheme);
+    }
+
+    // Cargar datos guardados
+    loadSavedData() {
+        const savedData = localStorage.getItem('cvData');
+        if (savedData) {
+            try {
+                const data = JSON.parse(savedData);
+                if (window.cvEditor) {
+                    setTimeout(() => {
+                        window.cvEditor.loadData(data);
+                    }, 100);
+                }
+            } catch (e) {
+                console.log('No hay datos previos guardados');
+            }
+        }
+    }
+
+    // Event Listeners principales
+    initializeEventListeners() {
+        // Toggle de tema
+        const themeBtn = document.getElementById('themeToggle');
+        if (themeBtn) {
+            themeBtn.addEventListener('click', () => this.toggleTheme());
+        }
+
+        // Toggle panel IA
+        const toggleAI = document.getElementById('toggleAI');
+        const closeAI = document.getElementById('closeAI');
+        const aiPanel = document.getElementById('aiPanel');
+
+        if (toggleAI && aiPanel) {
+            toggleAI.addEventListener('click', () => {
+                aiPanel.classList.toggle('active');
+            });
+        }
+
+        if (closeAI && aiPanel) {
+            closeAI.addEventListener('click', () => {
+                aiPanel.classList.remove('active');
+            });
+        }
+
+        // Selector de colores del footer - PARA EL NOMBRE JAIRO
+        const colorOptions = document.querySelectorAll('.color-option');
+        colorOptions.forEach(option => {
+            option.addEventListener('click', (e) => {
+                const color = e.target.dataset.color;
+                this.changeFooterColor(color);
+                
+                // Actualizar estado activo
+                colorOptions.forEach(opt => opt.classList.remove('active'));
+                e.target.classList.add('active');
+            });
+        });
+
+        // Efecto de scroll en header
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('.header');
+            if (!header) return;
+            
+            if (window.scrollY > 10) {
+                header.style.background = this.currentTheme === 'light' 
+                    ? 'rgba(255, 255, 255, 0.98)' 
+                    : 'rgba(15, 23, 42, 0.98)';
+            } else {
+                header.style.background = this.currentTheme === 'light' 
+                    ? 'rgba(255, 255, 255, 0.95)' 
+                    : 'rgba(15, 23, 42, 0.95)';
             }
         });
-
-        this.scores.palabrasClave = Math.min(25, (encontradas / palabrasClave.length) * 25);
-        return this.scores.palabrasClave;
     }
 
-    // Analizar estructura y formato
-    analizarEstructura() {
-        let puntos = 0;
-        
-        // Verificar longitud del resumen
-        const resumen = this.obtenerValorCampo('resumen') || '';
-        if (resumen.length >= 50 && resumen.length <= 200) puntos += 5;
-        
-        // Verificar experiencias tienen descripción
-        const experiencias = JSON.parse(localStorage.getItem('experiencias')) || [];
-        if (experiencias.length > 0) {
-            const conDescripcion = experiencias.filter(exp => exp.descripcion && exp.descripcion.length > 20);
-            puntos += (conDescripcion.length / experiencias.length) * 10;
+    changeFooterColor(color) {
+        const root = document.documentElement;
+        const colors = {
+            blue: { heart: '#ef4444', name: '#3b82f6' },
+            purple: { heart: '#ef4444', name: '#8b5cf6' },
+            green: { heart: '#ef4444', name: '#10b981' },
+            red: { heart: '#ef4444', name: '#ef4444' },
+            orange: { heart: '#ef4444', name: '#f59e0b' }
+        };
+
+        if (colors[color]) {
+            root.style.setProperty('--footer-heart', colors[color].heart);
+            root.style.setProperty('--footer-name', colors[color].name);
+            
+            this.showNotification(`Color cambiado a ${color}`, 'success');
         }
-        
-        // Verificar educación
-        const educacion = JSON.parse(localStorage.getItem('educacion')) || [];
-        if (educacion.length > 0) puntos += 5;
-        
-        // Verificar habilidades
-        const habilidades = this.obtenerValorCampo('habilidades') || '';
-        if (habilidades.length > 10) puntos += 5;
-
-        this.scores.estructura = Math.min(25, puntos);
-        return this.scores.estructura;
     }
 
-    // Analizar experiencia laboral
-    analizarExperiencia() {
-        const experiencias = JSON.parse(localStorage.getItem('experiencias')) || [];
-        let puntos = 0;
-
-        if (experiencias.length >= 2) puntos += 8;
-        else if (experiencias.length >= 1) puntos += 5;
-
-        // Verificar duración y descripciones
-        experiencias.forEach(exp => {
-            if (exp.descripcion && exp.descripcion.length > 50) puntos += 2;
+    // Notificaciones
+    showNotification(message, type = 'info') {
+        // Crear elemento de notificación
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+        
+        // Estilos para la notificación
+        Object.assign(notification.style, {
+            position: 'fixed',
+            top: '90px',
+            right: '20px',
+            padding: '1rem 1.5rem',
+            background: type === 'success' ? '#10b981' : 
+                       type === 'error' ? '#ef4444' : 
+                       type === 'warning' ? '#f59e0b' : '#3b82f6',
+            color: 'white',
+            borderRadius: '8px',
+            zIndex: '10000',
+            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.2)',
+            transform: 'translateX(400px)',
+            transition: 'transform 0.3s ease',
+            fontSize: '0.9rem',
+            fontWeight: '500'
         });
 
-        this.scores.experiencia = Math.min(10, puntos);
-        return this.scores.experiencia;
-    }
+        document.body.appendChild(notification);
 
-    // Analizar educación
-    analizarEducacion() {
-        const educacion = JSON.parse(localStorage.getItem('educacion')) || [];
-        let puntos = 0;
+        // Animación de entrada
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 100);
 
-        if (educacion.length >= 1) puntos += 5;
-        if (educacion.length >= 2) puntos += 3;
-        if (educacion.length >= 3) puntos += 2;
-
-        this.scores.educacion = Math.min(10, puntos);
-        return this.scores.educacion;
-    }
-
-    // Obtener valor de campo del CV
-    obtenerValorCampo(campo) {
-        const element = document.getElementById(campo);
-        if (element) return element.value || element.textContent || '';
-        return '';
-    }
-
-    // Obtener todo el texto del CV
-    obtenerTextoCompletoCV() {
-        let texto = '';
-        const campos = ['nombre', 'titulo', 'resumen', 'habilidades'];
-        
-        campos.forEach(campo => {
-            texto += ' ' + (this.obtenerValorCampo(campo) || '');
-        });
-
-        // Agregar experiencias y educación
-        const experiencias = JSON.parse(localStorage.getItem('experiencias')) || [];
-        const educacion = JSON.parse(localStorage.getItem('educacion')) || [];
-
-        experiencias.forEach(exp => {
-            texto += ' ' + (exp.descripcion || '');
-        });
-
-        educacion.forEach(edu => {
-            texto += ' ' + (edu.institucion || '') + ' ' + (edu.titulo || '');
-        });
-
-        return texto.toLowerCase();
-    }
-
-    // Calcular score total
-    calcularScoreTotal() {
-        this.analizarCompletitud();
-        this.analizarPalabrasClave();
-        this.analizarEstructura();
-        this.analizarExperiencia();
-        this.analizarEducacion();
-
-        this.totalScore = Object.values(this.scores).reduce((a, b) => a + b, 0);
-        return this.totalScore;
-    }
-
-    // Generar feedback detallado
-    generarFeedback() {
-        const feedback = [];
-        const total = this.totalScore;
-
-        // Feedback general
-        if (total >= 90) feedback.push("🎉 ¡Excelente! Tu CV es de alta calidad");
-        else if (total >= 70) feedback.push("✅ Buen CV, pero puede mejorar");
-        else if (total >= 50) feedback.push("⚠️ CV regular, necesita mejoras");
-        else feedback.push("❌ CV necesita trabajo significativo");
-
-        // Feedback específico por categoría
-        if (this.scores.completitud < 20) {
-            feedback.push("• Completa más campos obligatorios");
-        }
-        if (this.scores.palabrasClave < 15) {
-            feedback.push("• Agrega más palabras clave profesionales");
-        }
-        if (this.scores.estructura < 15) {
-            feedback.push("• Mejora la estructura y formato");
-        }
-        if (this.scores.experiencia < 5) {
-            feedback.push("• Agrega más experiencia laboral con descripciones detalladas");
-        }
-
-        return feedback;
-    }
-
-    // Obtener nivel del CV
-    obtenerNivel() {
-        const score = this.totalScore;
-        if (score >= 90) return { nivel: "PROFESIONAL", color: "#10B981" };
-        if (score >= 75) return { nivel: "AVANZADO", color: "#3B82F6" };
-        if (score >= 60) return { nivel: "INTERMEDIO", color: "#F59E0B" };
-        return { nivel: "BÁSICO", color: "#EF4444" };
+        // Auto-remover después de 4 segundos
+        setTimeout(() => {
+            notification.style.transform = 'translateX(400px)';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 300);
+        }, 4000);
     }
 }
 
-// ========== INTERFAZ DE SCORING ==========
-
-function inicializarSistemaScoring() {
-    // Crear botón de scoring en la interfaz si no existe
-    if (!document.getElementById('btn-analizar-cv')) {
-        const botonScoring = document.createElement('button');
-        botonScoring.id = 'btn-analizar-cv';
-        botonScoring.innerHTML = '📊 Analizar Mi CV';
-        botonScoring.className = 'btn-scoring';
-        botonScoring.onclick = mostrarPanelScoring;
-
-        // Agregar botón al panel de controles
-        const panelControles = document.querySelector('.controls');
-        if (panelControles) {
-            panelControles.appendChild(botonScoring);
-        }
-    }
-}
-
-function mostrarPanelScoring() {
-    const scorer = new CVScorer();
-    const scoreTotal = scorer.calcularScoreTotal();
-    const feedback = scorer.generarFeedback();
-    const nivel = scorer.obtenerNivel();
-    
-    const panelHTML = `
-        <div class="panel-scoring">
-            <h2>📊 Análisis de tu CV</h2>
-            
-            <div class="score-display">
-                <div class="score-circle" style="--score-percent: ${scoreTotal}%">
-                    <span>${scoreTotal}</span>
-                </div>
-                <h3 style="color: ${nivel.color}">Nivel: ${nivel.nivel}</h3>
-            </div>
-            
-            <div class="score-breakdown">
-                <div class="score-category">
-                    <span>Completitud:</span>
-                    <span>${scorer.scores.completitud}/30</span>
-                </div>
-                <div class="score-category">
-                    <span>Palabras Clave:</span>
-                    <span>${scorer.scores.palabrasClave}/25</span>
-                </div>
-                <div class="score-category">
-                    <span>Estructura:</span>
-                    <span>${scorer.scores.estructura}/25</span>
-                </div>
-                <div class="score-category">
-                    <span>Experiencia:</span>
-                    <span>${scorer.scores.experiencia}/10</span>
-                </div>
-                <div class="score-category">
-                    <span>Educación:</span>
-                    <span>${scorer.scores.educacion}/10</span>
-                </div>
-            </div>
-            
-            <div class="feedback-list">
-                <h4>💡 Recomendaciones:</h4>
-                ${feedback.map(item => `<p>${item}</p>`).join('')}
-            </div>
-            
-            <button class="cerrar-panel" onclick="cerrarPanelScoring()">Cerrar</button>
-        </div>
-    `;
-    
-    // Remover panel existente si hay uno
-    const panelExistente = document.querySelector('.panel-scoring');
-    if (panelExistente) panelExistente.remove();
-    
-    document.body.insertAdjacentHTML('beforeend', panelHTML);
-}
-
-function cerrarPanelScoring() {
-    const panel = document.querySelector('.panel-scoring');
-    if (panel) panel.remove();
-}
-
-// Inicializar sistema cuando cargue la página
-document.addEventListener('DOMContentLoaded', function() {
-    cargarCVCompartido();
-    setTimeout(inicializarSistemaScoring, 1000);
+// Inicializar la aplicación cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', () => {
+    window.cvApp = new CVCreator();
+    console.log('CV Creator Pro inicializado');
 });
-
-// Agregar estilos CSS para animaciones
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
-    
-    @keyframes slideOut {
-        from { transform: translateX(0); opacity: 1; }
-        to { transform: translateX(100%); opacity: 0; }
-    }
-    
-    .notificacion {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        font-weight: 500;
-    }
-`;
-document.head.appendChild(style);
