@@ -1,0 +1,29 @@
+# PROYECTO CVPro - RESUMEN TÉCNICO
+
+## OBJETIVO
+Plataforma web para creación de CVs con diseño premium, scoring, modo batalla y IA.
+
+## CARACTERÍSTICAS IMPLEMENTADAS
+✅ Fondo de partículas animadas con Three.js
+✅ Constructor de CV en tiempo real  
+✅ Sistema de plantillas intercambiables
+✅ Selector de colores personalizable
+✅ Campos dinámicos (agregar/eliminar experiencias)
+✅ Vista previa + mini preview
+✅ Modo nocturno/diurno
+✅ Guardado en localStorage
+
+## TECNOLOGÍAS
+Frontend: HTML5, CSS3, JavaScript, Particles.js
+Estilos: Glassmorphism, Gradientes animados, Efectos 3D
+
+## PRÓXIMOS OBJETIVOS
+- Sistema de scoring de CVs
+- Modo batalla entre usuarios
+- Integración con IA para sugerencias
+- Sistema premium con plantillas exclusivas
+
+ver enlaces!! 
+https://github.com/jairoperaltaaa-svg/CV-PRUEBA/blob/main/index.html
+https://github.com/jairoperaltaaa-svg/CV-PRUEBA/blob/main/script.js
+https://github.com/jairoperaltaaa-svg/CV-PRUEBA/blob/main/styles.css
