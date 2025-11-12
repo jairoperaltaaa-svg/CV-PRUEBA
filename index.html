@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CVPro - La Revolución de los Currículums</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="light-mode">
+    <!-- Fondo de partículas -->
+    <div id="particles-js"></div>
+    
+    <!-- Botón modo nocturno -->
+    <div class="theme-toggle">
+        <button id="themeBtn" class="theme-btn">🌙</button>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="container">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <h1>CV<span class="gradient-text">Pro</span></h1>
+            </div>
+            <div class="nav-links">
+                <a href="#inicio">Inicio</a>
+                <a href="#constructor">Constructor</a>
+                <a href="#batalla">Modo Batalla</a>
+                <a href="#premium">Premium</a>
+                <button class="btn-login">Iniciar Sesión</button>
+            </div>
+        </nav>
+
+        <!-- Hero Section (MANTENIENDO ESTILO ORIGINAL) -->
+        <section class="hero">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    Crea tu <span class="gradient-text">CV Perfecto</span>
+                </h1>
+                <p class="hero-subtitle">
+                    La plataforma más avanzada para currículums. Diseños profesionales, 
+                    puntuación inteligente y modo batalla.
+                </p>
+                <div class="hero-buttons">
+                    <button class="btn-primary" onclick="scrollToConstructor()">Comenzar Ahora</button>
+                    <button class="btn-secondary">Ver Ejemplos</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tarjetas 3D para selección (ESTILO ORIGINAL) -->
+        <section class="cards-section">
+            <h2>Elige tu Estilo</h2>
+            <div class="cards-container">
+                <div class="card-3d">
+                    <div class="card-content">
+                        <h3>🎯 Profesional</h3>
+                        <p>Diseño elegante y corporativo</p>
+                    </div>
+                </div>
+                <div class="card-3d">
+                    <div class="card-content">
+                        <h3>👔 Ejecutivo</h3>
+                        <p>Estilo premium y sofisticado</p>
+                    </div>
+                </div>
+                <div class="card-3d">
+                    <div class="card-content">
+                        <h3>🚀 Moderno</h3>
+                        <p>Diseño vanguardista y creativo</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Constructor de CV (SEPARADO CON SCROLL) -->
+        <section id="constructor" class="constructor-section">
+            <h2 class="section-title">Constructor de CV</h2>
+            
+            <div class="constructor-container">
+                <!-- Panel de edición -->
+                <div class="editor-panel">
+                    <div class="template-selector">
+                        <h3>Selecciona Plantilla</h3>
+                        <div class="template-options">
+                            <div class="template-option active" data-template="profesional">
+                                <div class="template-preview"></div>
+                                <span>Profesional</span>
+                            </div>
+                            <div class="template-option" data-template="ejecutivo">
+                                <div class="template-preview"></div>
+                                <span>Ejecutivo</span>
+                            </div>
+                            <div class="template-option" data-template="moderno">
+                                <div class="template-preview"></div>
+                                <span>Moderno</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Selector de colores -->
+                    <div class="color-picker">
+                        <h3>Personaliza Colores</h3>
+                        <div class="color-options">
+                            <div class="color-option">
+                                <input type="color" id="primaryColor" value="#667eea">
+                                <label for="primaryColor">Color Primario</label>
+                            </div>
+                            <div class="color-option">
+                                <input type="color" id="secondaryColor" value="#764ba2">
+                                <label for="secondaryColor">Color Secundario</label>
+                            </div>
+                            <div class="color-option">
+                                <input type="color" id="accentColor" value="#ff6b6b">
+                                <label for="accentColor">Color de Acento</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Editor de contenido -->
+                    <div class="content-editor">
+                        <h3>Información Personal</h3>
+                        
+                        <div class="form-group">
+                            <label>Nombre Completo</label>
+                            <input type="text" id="fullName" placeholder="Tu nombre completo">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Profesión</label>
+                            <input type="text" id="profession" placeholder="Tu profesión">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="email" placeholder="tu@email.com">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Teléfono</label>
+                            <input type="tel" id="phone" placeholder="+34 123 456 789">
+                        </div>
+
+                        <!-- Experiencia Laboral Dinámica -->
+                        <div class="dynamic-section">
+                            <h4>Experiencia Laboral 
+                                <button type="button" class="add-btn" data-section="experience">+ Agregar</button>
+                            </h4>
+                            <div id="experience-container">
+                                <!-- Las experiencias se agregarán aquí dinámicamente -->
+                            </div>
+                        </div>
+
+                        <!-- Botones de acción -->
+                        <div class="action-buttons">
+                            <button class="btn-primary" id="saveTemplate">💾 Guardar Plantilla</button>
+                            <button class="btn-secondary" id="newTemplate">🆕 Nueva Plantilla</button>
+                            <button class="btn-export" id="exportPdf">📄 Exportar PDF</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vista previa en tiempo real -->
+                <div class="preview-panel">
+                    <h3>Vista Previa</h3>
+                    <div class="preview-container">
+                        <div class="cv-preview" id="cvPreview">
+                            <!-- CV se renderiza aquí -->
+                        </div>
+                    </div>
+                    
+                    <!-- Mini preview -->
+                    <div class="mini-preview">
+                        <h4>Vista Mini</h4>
+                        <div class="mini-cv" id="miniPreview">
+                            <!-- Vista mini del CV -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
